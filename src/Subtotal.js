@@ -9,7 +9,7 @@ function Subtotal() {
 
     const history = useHistory();
     
-    const [{ basket },dispatch] = useStateValue();
+    const [{ basket ,user},dispatch] = useStateValue();
 
     return (
         <div className="subtotal">
@@ -33,8 +33,11 @@ function Subtotal() {
                 prefix={"Rs "}
 
             />
-
-            <button onClick={e => history.push("/payment")}>Proceed to Checkout</button>
+            {/* Before proceeding to checkout, it should we mde sure that the user has logged in so that the order 
+            can be later linked to his account. */}
+            {/* The Statement below checks if the user exsists, if yes clicking then the button redirects the user to the 
+            payment page else the Sign-in alert pops up. */}
+            <button onClick={e => (user)? history.push("/payment") : alert("Before placing the order, please sign in !") }>Proceed to Checkout</button>
         </div>
     )
 }

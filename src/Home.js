@@ -44,7 +44,7 @@ function Home() {
                     <Product
                         id="4903850"
                         title="Fitbit Inspire HR Health and Fitness Tracker with Heart Rate (Black)"
-                        price={6785.00}
+                        price={6780.00}
                         rating={3}
                         image="https://images-na.ssl-images-amazon.com/images/I/71Swqqe7XAL._AC_SX466_.jpg"
                     />

@@ -16,12 +16,18 @@ const reducer = (state,action) => {
                 basket: [...state.basket,action.item],
             };
 
+        case "EMPTY_BASKET":
+            return {
+                ...state,
+                basket: [],
+            };
+
         case "REMOVE_FROM_BASKET":
             const index = state.basket.findIndex(
                 (basketItem) => basketItem.id === action.id
             );  
 
-            let newBasket = [...state.basket]; //copying the crrent state of the basket to a new variable
+            let newBasket = [...state.basket]; //copying the current state of the basket to a new variable
 
             if(index >= 0) {
                 newBasket.splice(index,1);

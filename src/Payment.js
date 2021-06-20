@@ -7,6 +7,7 @@ import { CardElement, useStripe, useElements} from "@stripe/react-stripe-js";
 import { getBasketTotal } from './reducer';
 import CurrencyFormat from "react-currency-format";
 import axios from './axios';
+import { db } from "./firebase";
 
 function Payment() {
 
@@ -29,11 +30,21 @@ function Payment() {
                 method: 'post',
                 url: `/payments/create?total=${getBasketTotal(basket) * 100}`
             });
-            setClientSecret(response.data.clientSecret);
+            setClientSecret(response.data.clientSecret)
         }
 
-        getClientSecret();
+        // The below if statement is to make sure that the getClientSecret() function doesnt get triggered if the basket size = 0, i.e cart is empty
+        // Because when this block was not present the const response was firing twice and it was giving out an uncaught error in the 
+        // terminal as stripe cant execute Rs.0 amount payments.
+        // The following if statement avoids this from happening and avoids the program to behave abnormally
+        if( getBasketTotal(basket) )  
+        {
+            getClientSecret();    
+        }
+        
     },[basket])
+
+    console.log('The secret is : ', clientSecret);
 
     const handleSubmit = async (event)=> {
         event.preventDefault();
@@ -45,15 +56,31 @@ function Payment() {
             }
         }).then(({paymentIntent}) => { //the paymentIntent is the payment confirmation
 
+            //if payment is confirmed then the order details are stored into the database
+            db
+                .collection('users')
+                .doc(user?.uid)
+                .collection('orders')
+                .doc(paymentIntent.id)
+                .set({
+                    basket: basket,
+                    amount: paymentIntent.amount,
+                    created: paymentIntent.created
+                })
+
             setSucceeded(true);
             setError(null);
             setProcessing(false);
+            
+            dispatch({
+                type:'EMPTY_BASKET'
+            })
 
             history.replace('/orders');
         })
     }
 
-    const handleChange = event=> {
+    const handleChange = event => {
         setDisabled(event.empty);
         setError(event.error? event.error.message : "");
     }
@@ -104,7 +131,7 @@ function Payment() {
                     </div>
                     <div className="payment__details">
                     
-                        <form omSubmit={handleSubmit}>
+                        <form onSubmit={handleSubmit}>
 
                             <CardElement onChange={handleChange}/>
 
@@ -124,11 +151,12 @@ function Payment() {
                                 />
 
                                 <button disabled={processing || disabled || succeeded}>
-                                    <span>{processing? <p>Processing</p> :"Buy now"}</span>
+                                    <span>{processing ? <p>Processing</p> :"Buy now"}</span>
                                 </button>
 
-                                { error && <div>{error}</div> }
                             </div>
+
+                            { error && <div>{error}</div> }
                         </form>
                         
                     </div>

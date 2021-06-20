@@ -9,6 +9,8 @@
 }
 
 .checkoutProduct__info > button {
+  padding: 3px;
+  border-radius: 2px;
   background: #ffb700;
   border: 1px solid;
   margin-top: 10px;
